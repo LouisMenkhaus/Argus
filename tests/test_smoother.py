@@ -1,24 +1,15 @@
-"""MotionSmoother box/keypoint smoothing.
+"""MotionSmoother: box/keypoint smoothing and track lifecycle.
 
-core.tracker imports torch/ultralytics at module level, so these tests are
-skipped in minimal environments and run fully in CI (where requirements.txt
-is installed).
+These import from core.smoothing, which carries no inference dependency, so
+they execute everywhere rather than silently skipping when torch is absent.
 """
-try:
-    from core.tracker import MotionSmoother  # noqa: F401
-    HAS_DEPS = True
-except Exception:
-    HAS_DEPS = False
-
 import numpy as np
 
 from core.config import AppConfig
+from core.smoothing import MotionSmoother
 
 
 def test_box_state_roundtrip():
-    if not HAS_DEPS:
-        return  # skipped: torch/ultralytics not installed
-    from core.tracker import MotionSmoother
     box = np.array([100, 50, 200, 250], dtype=np.float32)
     cx, cy, w, h = MotionSmoother._box_to_state(box)
     back = MotionSmoother._state_to_box(cx, cy, w, h)
@@ -26,9 +17,6 @@ def test_box_state_roundtrip():
 
 
 def test_kalman_mode_smooths_noisy_boxes():
-    if not HAS_DEPS:
-        return
-    from core.tracker import MotionSmoother
     cfg = AppConfig()
     cfg.tracking.filter = "kalman"
     sm = MotionSmoother(cfg)
@@ -45,9 +33,6 @@ def test_kalman_mode_smooths_noisy_boxes():
 
 
 def test_lost_tracks_expire():
-    if not HAS_DEPS:
-        return
-    from core.tracker import MotionSmoother
     cfg = AppConfig()
     cfg.tracking.filter = "kalman"
     sm = MotionSmoother(cfg)
@@ -56,3 +41,23 @@ def test_lost_tracks_expire():
     for _ in range(sm.max_lost_frames + 5):
         sm.predict_lost()
     assert 1 not in sm.kalman, "track must be dropped after max_lost_frames"
+
+
+def test_one_euro_is_the_default_keypoint_filter():
+    """Latency-critical default: keypoints use One Euro unless told otherwise."""
+    cfg = AppConfig()
+    assert cfg.tracking.keypoint_filter == "one_euro"
+    sm = MotionSmoother(cfg)
+    kp = np.zeros((17, 3), dtype=np.float32)
+    kp[0] = [100.0, 100.0, 0.9]
+    sm.update(5, np.array([50, 50, 150, 350], dtype=np.float32), kp, 0.9)
+    assert 5 in sm.oe_filters, "One Euro filter should be instantiated per track"
+
+
+def test_drop_clears_all_state_for_a_track():
+    cfg = AppConfig()
+    sm = MotionSmoother(cfg)
+    kp = np.zeros((17, 3), dtype=np.float32)
+    sm.update(11, np.array([10, 10, 60, 200], dtype=np.float32), kp, 0.9)
+    sm.drop(11)
+    assert 11 not in sm.kalman and 11 not in sm.oe_filters and 11 not in sm.kp_state

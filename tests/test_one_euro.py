@@ -67,3 +67,34 @@ def test_non_advancing_time_returns_previous():
     f(1.0, np.array([5.0]))
     out = f(1.0, np.array([999.0]))   # same timestamp — must not divide by zero
     assert float(out[0]) == 5.0
+
+
+def test_survives_faster_than_realtime_frame_delivery():
+    """Regression: benchmark mode and video-file playback deliver frames as
+    fast as the CPU allows. With unclamped dt the smoothing factor collapses
+    toward zero and the filter stops following its input entirely — the
+    skeleton freezes while the subject moves. dt is clamped to a plausible
+    frame interval to keep the filter responsive in that regime."""
+    f = OneEuroFilter(min_cutoff=1.0, beta=0.05)
+    t = 0.0
+    x = 0.0
+    out = 0.0
+    for _ in range(45):
+        t += 1e-5           # ~100,000 fps: what a tight processing loop looks like
+        x += 6.0
+        out = float(f(t, np.array([x]))[0])
+    lag = abs(x - out)
+    assert lag < 25.0, f"filter froze under fast delivery: {lag:.1f}px behind"
+
+
+def test_dt_clamp_does_not_harm_normal_framerate():
+    """The clamp must not change behavior at ordinary camera framerates."""
+    f = OneEuroFilter(min_cutoff=1.0, beta=0.05)
+    t = 0.0
+    x = 0.0
+    out = 0.0
+    for _ in range(45):
+        t += DT             # 30 fps
+        x += 6.0
+        out = float(f(t, np.array([x]))[0])
+    assert abs(x - out) < 12.0

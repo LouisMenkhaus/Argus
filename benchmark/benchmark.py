@@ -11,7 +11,8 @@ from core.tracker import MultiCameraTracker
 def run_benchmark(cfg: AppConfig, session_dir: Path, num_frames: int = 1000) -> dict[str, float]:
     tracker = MultiCameraTracker(cfg)
     source = cfg.cameras.sources[0]
-    cap = CaptureWrapper(source, cfg.cameras.width, cfg.cameras.height, cfg.cameras.fps, cfg.cameras.prefer_dshow)
+    cap = CaptureWrapper(source, cfg.cameras.width, cfg.cameras.height,
+                         cfg.cameras.fps, cfg.cameras.prefer_dshow)
     process = psutil.Process()
     start_mem = process.memory_info().rss / 1024 / 1024
     times = []; infer_times = []
@@ -34,5 +35,6 @@ def run_benchmark(cfg: AppConfig, session_dir: Path, num_frames: int = 1000) -> 
             "avg_infer_ms": float(np.mean(infer_times)),
             "memory_delta_mb": float(process.memory_info().rss / 1024 / 1024 - start_mem),
         }
-    (session_dir / "benchmark_results.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
+    (session_dir / "benchmark_results.json").write_text(
+        json.dumps(report, indent=2), encoding="utf-8")
     return report

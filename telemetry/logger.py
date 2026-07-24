@@ -13,7 +13,9 @@ class SessionLogger:
         self.last_status_path = self.session_dir / "last_status.json"
         if write_csv:
             self.csv_fp = open(self.session_dir / "telemetry.csv", "w", encoding="utf-8")
-            self.csv_fp.write("t_iso,camera,global_id,local_id,fps_avg,infer_ms,total_ms,distance_est_m,azimuth_deg,heading_deg,events\n")
+            self.csv_fp.write(
+                "t_iso,camera,global_id,local_id,fps_avg,infer_ms,total_ms,"
+                "distance_est_m,azimuth_deg,heading_deg,events\n")
         if write_jsonl:
             self.jsonl_fp = open(self.session_dir / "telemetry.jsonl", "w", encoding="utf-8")
 
@@ -23,9 +25,12 @@ class SessionLogger:
         if self.csv_fp:
             events = "|".join(row.get("events", []))
             self.csv_fp.write(
-                f"{row.get('t_iso','')},{row.get('camera','')},{row.get('global_id','')},{row.get('local_id','')},"
-                f"{row.get('fps_avg',0):.2f},{row.get('infer_ms',0):.3f},{row.get('total_ms',0):.3f},"
-                f"{row.get('distance_est_m',0):.2f},{row.get('azimuth_deg',0):.2f},{row.get('heading_deg',0):.2f},{events}\n"
+                f"{row.get('t_iso','')},{row.get('camera','')},"
+                f"{row.get('global_id','')},{row.get('local_id','')},"
+                f"{row.get('fps_avg',0):.2f},{row.get('infer_ms',0):.3f},"
+                f"{row.get('total_ms',0):.3f},"
+                f"{row.get('distance_est_m',0):.2f},{row.get('azimuth_deg',0):.2f},"
+                f"{row.get('heading_deg',0):.2f},{events}\n"
             )
         if self.jsonl_fp:
             self.jsonl_fp.write(json.dumps(row) + "\n")

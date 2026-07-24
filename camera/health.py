@@ -57,15 +57,18 @@ class CameraHealth:
             self.bad_count = 0
 
         if self.state == "healthy":
-            if self.bad_count >= self.bad_checks_required and (now - self.last_change_time) >= self.cooldown_sec:
+            if (self.bad_count >= self.bad_checks_required
+                    and (now - self.last_change_time) >= self.cooldown_sec):
                 self.state = raw
                 self.last_change_time = now
         else:
             # if raw gets worse, allow quicker escalation
-            if raw == "dropping_frames" and self.state != "dropping_frames" and self.bad_count >= self.bad_checks_required:
+            if (raw == "dropping_frames" and self.state != "dropping_frames"
+                    and self.bad_count >= self.bad_checks_required):
                 self.state = "dropping_frames"
                 self.last_change_time = now
-            elif raw == "healthy" and self.good_count >= self.good_checks_required and (now - self.last_change_time) >= self.cooldown_sec:
+            elif (raw == "healthy" and self.good_count >= self.good_checks_required
+                    and (now - self.last_change_time) >= self.cooldown_sec):
                 self.state = "healthy"
                 self.last_change_time = now
 

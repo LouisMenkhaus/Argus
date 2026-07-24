@@ -11,19 +11,13 @@ system-level properties that matter in operation:
   * a scripted collapse (tall box -> wide flat box) raises a fall event
   * a track that stops being detected coasts, then expires
 
-core.tracker imports torch/ultralytics at module level, so in minimal
-environments these tests skip (mirroring tests/test_smoother.py); CI installs
-the full requirements and executes them.
+These import from core.smoothing (no inference dependency), so the full
+pipeline is exercised on every machine and in CI without a model stack.
 """
-try:
-    from core.tracker import MotionSmoother  # noqa: F401
-    HAS_DEPS = True
-except Exception:
-    HAS_DEPS = False
-
 import numpy as np
 
 from core.behavior import BehaviorAnalyzer
+from core.smoothing import MotionSmoother
 from core.config import AppConfig
 from core.spatial import SpatialAnalyzer
 
@@ -51,13 +45,10 @@ def _walk_boxes(n: int, x0: float = 200.0, step: float = 6.0) -> list[np.ndarray
 
 
 def test_walking_target_keeps_identity_and_tracks_motion():
-    if not HAS_DEPS:
-        return
     cfg = AppConfig()
     cfg.tracking.filter = "kalman"
     cfg.tracking.keypoint_filter = "one_euro"
     sm = MotionSmoother(cfg)
-    spatial = BehaviorAnalyzer  # noqa: F841  (imported for parity)
 
     boxes = _walk_boxes(45)
     last_smooth = None
@@ -76,8 +67,6 @@ def test_walking_target_keeps_identity_and_tracks_motion():
 
 
 def test_approaching_target_distance_decreases_monotonically():
-    if not HAS_DEPS:
-        return
     cfg = AppConfig()
     sm = MotionSmoother(cfg)
     spatial = SpatialAnalyzer(cfg)
@@ -98,8 +87,6 @@ def test_approaching_target_distance_decreases_monotonically():
 
 
 def test_scripted_collapse_raises_fall_event():
-    if not HAS_DEPS:
-        return
     cfg = AppConfig()
     sm = MotionSmoother(cfg)
     behavior = BehaviorAnalyzer(cfg)
@@ -121,8 +108,6 @@ def test_scripted_collapse_raises_fall_event():
 
 
 def test_vanished_track_coasts_then_expires():
-    if not HAS_DEPS:
-        return
     cfg = AppConfig()
     cfg.tracking.filter = "kalman"
     sm = MotionSmoother(cfg)

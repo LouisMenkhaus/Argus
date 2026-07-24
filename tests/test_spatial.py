@@ -42,7 +42,8 @@ def test_per_id_smoothing_damps_jitter():
         a.estimate(FRAME, _box(640, 300), [], track_id=7)
     steady = a.estimate(FRAME, _box(640, 300), [], track_id=7)["distance_est_m"]
     jumped = a.estimate(FRAME, _box(640, 360), [], track_id=7)["distance_est_m"]
-    raw_unsmoothed = SpatialAnalyzer(AppConfig()).estimate(FRAME, _box(640, 360), [], None)["distance_est_m"]
+    fresh = SpatialAnalyzer(AppConfig())
+    raw_unsmoothed = fresh.estimate(FRAME, _box(640, 360), [], None)["distance_est_m"]
     assert abs(jumped - steady) < abs(raw_unsmoothed - steady)
 
 

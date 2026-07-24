@@ -61,7 +61,11 @@ class RateLimiter:
 
 class RBAC:
     def __init__(self, config_path: Path | None) -> None:
-        self.roles = {"viewer":["status","health"], "operator":["status","health","toggle"], "admin":["*"]}
+        self.roles = {
+            "viewer": ["status", "health"],
+            "operator": ["status", "health", "toggle"],
+            "admin": ["*"],
+        }
         self.users: dict[str, str] = {}
         if config_path and config_path.exists():
             data = json.loads(config_path.read_text(encoding="utf-8"))
@@ -77,7 +81,9 @@ class ControlState:
     dashboard_status: dict[str, Any]
     toggles: dict[str, bool]
 
-def start_api(host: str, port: int, status_ref: ControlState, jwt_secret: str, rbac_path: str, rate_limit: float, rate_burst: int) -> Optional[threading.Thread]:
+def start_api(host: str, port: int, status_ref: ControlState, jwt_secret: str,
+              rbac_path: str, rate_limit: float,
+              rate_burst: int) -> Optional[threading.Thread]:
     if not API_AVAILABLE:
         return None
     app = FastAPI(title="Argus Control API")
@@ -86,7 +92,8 @@ def start_api(host: str, port: int, status_ref: ControlState, jwt_secret: str, r
     rbac = RBAC(Path(rbac_path) if rbac_path else None)
 
     def require(capability: str):
-        async def _dep(request: Request, credentials: HTTPAuthorizationCredentials = Depends(security)):
+        async def _dep(request: Request,
+                       credentials: HTTPAuthorizationCredentials = Depends(security)):
             key = request.client.host if request.client else "unknown"
             if not limiter.check(key):
                 raise HTTPException(status_code=429, detail="Rate limit exceeded")

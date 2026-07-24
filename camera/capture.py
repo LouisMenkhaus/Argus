@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import platform
 import threading
 import time
@@ -157,10 +158,10 @@ class CaptureWrapper:
             self._grabber.stop()
             self._grabber.join(timeout=1.0)
             self._grabber = None
-        try:
+        # Releasing an already-dead device raises on some backends; the goal
+        # is simply that the handle is gone.
+        with contextlib.suppress(Exception):
             self.cap.release()
-        except Exception:
-            pass
         time.sleep(sleep_s)
         self.cap = self._open(self.source)
         if self.threaded:
@@ -171,7 +172,7 @@ class CaptureWrapper:
             self._grabber.stop()
             self._grabber.join(timeout=1.0)
             self._grabber = None
-        try:
+        # Releasing an already-dead device raises on some backends; the goal
+        # is simply that the handle is gone.
+        with contextlib.suppress(Exception):
             self.cap.release()
-        except Exception:
-            pass

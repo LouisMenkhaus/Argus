@@ -70,6 +70,13 @@ Module layout mirrors the diagram: `camera/` (capture + health), `core/`
 (tracking, smoothing, ReID, spatial, behavior, config), `telemetry/`,
 `recording/`, `api/`, `benchmark/`.
 
+The tracking layer is deliberately decoupled from inference:
+`core/smoothing.py` (Kalman/One Euro smoothing, global identity, rendering)
+imports only OpenCV and NumPy, while `core/tracker.py` composes it with
+YOLO/ByteTrack. The algorithmic core is therefore testable — and reusable
+behind a different detector — without a multi-gigabyte model stack, which is
+also why CI runs the full suite in about a minute.
+
 ## Quick start
 
 ```bash
@@ -148,7 +155,7 @@ pytest
 flake8 . && mypy main.py core api camera telemetry recording benchmark && bandit -c .bandit -r .
 ```
 
-The suite (50 tests) asserts behavior, not existence: Kalman convergence on
+The suite (54 tests) asserts behavior, not existence: Kalman convergence on
 moving targets and variance reduction under noise, occlusion prediction and
 track expiry, health-monitor hysteresis (no flapping, escalation and recovery
 thresholds), distance monotonicity and azimuth sign, behavior-event geometry,

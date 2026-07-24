@@ -15,7 +15,8 @@ class MetricsCollector:
         self.total_ms = Gauge("tracker_total_ms", "Total frame time ms")
         self.frames = Counter("tracker_frames_total", "Total frames processed")
         self.failures = Counter("tracker_failures_total", "Total failures")
-        self.latency = Histogram("tracker_total_ms_hist", "Frame time histogram", buckets=(5,10,15,20,30,50,100,200))
+        self.latency = Histogram("tracker_total_ms_hist", "Frame time histogram",
+                                 buckets=(5, 10, 15, 20, 30, 50, 100, 200))
         start_http_server(port)
 
     def update(self, fps_avg: float, tracks: int, infer_ms: float, total_ms: float) -> None:

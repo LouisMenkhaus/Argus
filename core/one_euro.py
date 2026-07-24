@@ -32,6 +32,18 @@ import math
 import numpy as np
 
 
+# The filter's response is a function of the time between samples. That is
+# correct for a live camera, where dt is the frame interval — but the same code
+# also runs when frames arrive as fast as the CPU allows (benchmark mode, video
+# files, batch replay). There dt collapses toward zero, the smoothing factor
+# goes with it, and the filter effectively freezes: output stops following
+# input. Clamping dt to a plausible frame interval keeps behavior sane in both
+# regimes, and after a long stall it prevents a single huge dt from snapping
+# the estimate.
+MIN_DT_S = 1.0 / 240.0   # treat anything faster than 240 fps as 240 fps
+MAX_DT_S = 0.5           # after a stall, resume as if half a second passed
+
+
 def _smoothing_factor(dt: float, cutoff: "np.ndarray | float") -> "np.ndarray | float":
     """Exponential smoothing factor for a given timestep and cutoff frequency."""
     tau = 1.0 / (2.0 * math.pi * np.maximum(cutoff, 1e-6))
@@ -67,6 +79,9 @@ class OneEuroFilter:
         if dt <= 0.0:
             return self._x_prev.copy()
         self._t_prev = float(t)
+        # See MIN_DT_S / MAX_DT_S: keeps the filter responsive when frames are
+        # processed faster than real time, and stable after a stall.
+        dt = min(MAX_DT_S, max(MIN_DT_S, dt))
 
         # Smoothed derivative (speed estimate per coordinate)
         dx = (x - self._x_prev) / dt

@@ -33,12 +33,18 @@ def print_banner() -> None:
 
 
 def parse_args() -> argparse.Namespace:
-    p = argparse.ArgumentParser(prog="argus", description="Argus — multi-camera pose tracking and behavior analysis")
+    p = argparse.ArgumentParser(
+        prog="argus",
+        description="Argus — multi-camera pose tracking and behavior analysis",
+    )
     p.add_argument("--config", type=str, default="config/default.yaml", help="Path to YAML config")
-    p.add_argument("--sources", type=str, default="", help="Comma-separated camera/video/RTSP sources")
-    p.add_argument("--prefer-dshow", action="store_true", help="Prefer DirectShow for webcams on Windows")
+    p.add_argument("--sources", type=str, default="",
+                   help="Comma-separated camera/video/RTSP sources")
+    p.add_argument("--prefer-dshow", action="store_true",
+                   help="Prefer DirectShow for webcams on Windows")
     p.add_argument("--benchmark", action="store_true", help="Run benchmark and exit")
-    p.add_argument("--benchmark-frames", type=int, default=500, help="Number of frames for benchmark mode")
+    p.add_argument("--benchmark-frames", type=int, default=500,
+                   help="Number of frames for benchmark mode")
     p.add_argument("--dashboard", action="store_true", help="Enable API/dashboard status server")
     p.add_argument("--dashboard-port", type=int, default=8000, help="Dashboard/API port")
     p.add_argument("--metrics", action="store_true", help="Enable Prometheus metrics endpoint")
@@ -46,7 +52,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--jwt-secret", type=str, default="", help="Optional JWT secret for API")
     p.add_argument("--rbac-config", type=str, default="rbac.json", help="RBAC JSON path")
     p.add_argument("--reid", action="store_true", help="Enable simple ReID")
-    p.add_argument("--tracking-filter", choices=["adaptive", "kalman"], default="", help="Tracking filter mode")
+    p.add_argument("--tracking-filter", choices=["adaptive", "kalman"], default="",
+                   help="Tracking filter mode")
     p.add_argument("--keypoint-filter", choices=["one_euro", "ema"], default="",
                    help="Keypoint smoothing: one_euro (low latency, default) or legacy ema")
     p.add_argument("--model", type=str, default="",
@@ -98,7 +105,8 @@ def main() -> None:
     args = parse_args()
     cfg = load_cfg(args)
 
-    session_dir = Path(cfg.telemetry.out_dir) / f"session_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    stamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    session_dir = Path(cfg.telemetry.out_dir) / f"session_{stamp}"
     session_dir.mkdir(parents=True, exist_ok=True)
 
     audit = AuditLogger(session_dir, webhook_url=cfg.alerts.webhook_url)
@@ -140,7 +148,10 @@ def main() -> None:
     show_ids = True
     night_view = False
 
-    status_ref = ControlState(dashboard_status={"ok": True, "tracks": []}, toggles={"pose": True, "boxes": True, "ids": True})
+    status_ref = ControlState(
+        dashboard_status={"ok": True, "tracks": []},
+        toggles={"pose": True, "boxes": True, "ids": True},
+    )
     if cfg.telemetry.dashboard:
         # Secret resolution order: --jwt-secret flag, then the env var named in
         # config (default JWT_SECRET). Never hardcode secrets in config files.
@@ -148,11 +159,14 @@ def main() -> None:
         if not jwt_secret:
             print("[SECURITY] API starting WITHOUT auth (no JWT secret provided) — "
                   "all requests treated as role 'viewer'. Set JWT_SECRET to enable auth.")
-        start_api("127.0.0.1", cfg.telemetry.dashboard_port, status_ref, jwt_secret, args.rbac_config, cfg.security.rate_limit, cfg.security.rate_burst)
+        start_api("127.0.0.1", cfg.telemetry.dashboard_port, status_ref,
+                  jwt_secret, args.rbac_config,
+                  cfg.security.rate_limit, cfg.security.rate_burst)
         audit.event("dashboard_enabled", extra={"port": cfg.telemetry.dashboard_port})
 
     if args.record_video:
-        recorder.start_recording("session.mp4", max(15, cfg.cameras.fps), (cfg.cameras.width, cfg.cameras.height))
+        recorder.start_recording("session.mp4", max(15, cfg.cameras.fps),
+                                 (cfg.cameras.width, cfg.cameras.height))
 
     cv2.namedWindow("Argus", cv2.WINDOW_NORMAL)
     cv2.resizeWindow("Argus", cfg.cameras.width, cfg.cameras.height)
@@ -171,7 +185,8 @@ def main() -> None:
                 ret, frame = cap.read_latest(cfg.cameras.buffer_drops)
                 if not ret or frame is None:
                     cap.reconnect()
-                    audit.event("capture_reconnect", "ERROR", {"camera": camera_idx, "source": cap.source})
+                    audit.event("capture_reconnect", "ERROR",
+                                {"camera": camera_idx, "source": cap.source})
                     if metrics:
                         metrics.failure()
                     continue
@@ -200,10 +215,12 @@ def main() -> None:
 
                     label = f"GID{gid} LID{lid} {s['distance_est_m']:.1f}m {s['azimuth_deg']:.0f}°"
                     if show_ids:
-                        cv2.putText(annotated, label, (x1, max(20, y1 - 10)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                        cv2.putText(annotated, label, (x1, max(20, y1 - 10)),
+                                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
                     if events:
-                        cv2.putText(annotated, " | ".join(events), (x1, min(annotated.shape[0] - 10, y2 + 18)),
+                        cv2.putText(annotated, " | ".join(events),
+                                    (x1, min(annotated.shape[0] - 10, y2 + 18)),
                                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
 
                     row = {
@@ -230,11 +247,13 @@ def main() -> None:
                             f"CAM {camera_idx} | {result['fps_avg']:.1f} FPS | "
                             f"infer {result['infer_ms']:.0f} ms | {tracker.device.upper()}",
                             (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-                cv2.putText(annotated, f"Health: {cap.health.check_health()}", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255,200,0), 2)
+                cv2.putText(annotated, f"Health: {cap.health.check_health()}",
+                            (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 200, 0), 2)
                 mosaics.append(annotated)
 
                 if metrics:
-                    metrics.update(result["fps_avg"], len(frame_tracks), result["infer_ms"], result["total_ms"])
+                    metrics.update(result["fps_avg"], len(frame_tracks),
+                                   result["infer_ms"], result["total_ms"])
 
             if not mosaics:
                 continue
@@ -242,14 +261,17 @@ def main() -> None:
             display = mosaics[0] if len(mosaics) == 1 else cv2.hconcat(mosaics)
             frame_idx += 1
 
-            status = {"ok": True, "frame": frame_idx, "tracks": status_tracks, "runtime": tracker.runtime}
+            status = {"ok": True, "frame": frame_idx,
+                      "tracks": status_tracks, "runtime": tracker.runtime}
             status_ref.dashboard_status = status
             logger.write_status(status)
 
             if args.record_video:
                 recorder.write_frame(display, time.time())
 
-            cv2.putText(display, "Q quit | N night | 1 pose | 2 boxes | 3 ids | E export", (10, display.shape[0]-12), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255,255,255), 1)
+            cv2.putText(display, "Q quit | N night | 1 pose | 2 boxes | 3 ids | E export",
+                        (10, display.shape[0] - 12), cv2.FONT_HERSHEY_SIMPLEX,
+                        0.45, (255, 255, 255), 1)
             cv2.imshow("Argus", display)
 
             key = cv2.waitKey(1) & 0xFF

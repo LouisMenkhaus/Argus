@@ -25,7 +25,8 @@ class SessionRecorder:
         self.records.append(payload)
 
     def save_json(self, filename: str = "replay.json") -> None:
-        (self.session_dir / filename).write_text(json.dumps(self.records, indent=2), encoding="utf-8")
+        (self.session_dir / filename).write_text(
+            json.dumps(self.records, indent=2), encoding="utf-8")
 
     def stop(self) -> None:
         if self.video_writer is not None:
