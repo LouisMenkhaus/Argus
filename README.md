@@ -155,7 +155,7 @@ pytest
 flake8 . && mypy main.py core api camera telemetry recording benchmark && bandit -c .bandit -r .
 ```
 
-The suite (54 tests) asserts behavior, not existence: Kalman convergence on
+The suite (59 tests) asserts behavior, not existence: Kalman convergence on
 moving targets and variance reduction under noise, occlusion prediction and
 track expiry, health-monitor hysteresis (no flapping, escalation and recovery
 thresholds), distance monotonicity and azimuth sign, behavior-event geometry,

@@ -2,6 +2,13 @@
 
 ## 1.3.0 — Decoupled tracking layer, latency bug fix (2026-07)
 
+### Security
+- **Audit webhook now validates its URL scheme.** `urllib.request.urlopen`
+  will open `file://` (and other) schemes, so a webhook URL reaching the
+  config from an untrusted source could have been turned into a local file
+  read. Only `http`/`https` with a host are accepted; anything else is
+  rejected at construction with a console notice. Covered by five tests.
+
 ### Fixed
 - **One Euro filter froze when frames arrived faster than real time.** The
   filter derives its response from wall-clock time between samples, which is
@@ -29,7 +36,10 @@
   `try/except/pass` with documented `contextlib.suppress` blocks.
 
 ### Added
-- Suite grown to 54 tests, all genuinely executing (no silent skips).
+- Suite grown to 59 tests, all genuinely executing (no silent skips).
+- `tests/conftest.py` puts the repository root on `sys.path`, so the suite
+  runs under plain `pytest` from a clean checkout (it previously relied on
+  the caller having arranged the path).
 
 
 ## 1.2.0 — Application-ready polish (2026-07)

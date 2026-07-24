@@ -38,13 +38,13 @@ jobs:
             telemetry/*.py recording/*.py benchmark/*.py scripts/*.py tests/*.py
 
       - name: Lint (flake8)
-        run: flake8 .
+        run: python -m flake8 .
 
       - name: Security scan (bandit)
-        run: bandit -c .bandit -r .
+        run: python -m bandit -c .bandit -r .
 
       - name: Tests
-        run: pytest -q --cov=core --cov=camera --cov=telemetry --cov-report=term-missing
+        run: python -m pytest -q --cov=core --cov=camera --cov=telemetry --cov-report=term-missing
 
   # Advisory. Type coverage is being added incrementally, so mypy reports are
   # informational rather than merge-blocking — a red badge for an un-annotated
@@ -64,4 +64,4 @@ jobs:
           python -m pip install -U pip
           pip install mypy numpy PyYAML
       - name: mypy
-        run: mypy main.py core camera telemetry recording benchmark
+        run: python -m mypy main.py core camera telemetry recording benchmark

@@ -17,3 +17,5 @@ warn_unused_ignores = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+# Repository root on sys.path so tests import the package under test directly.
+pythonpath = ["."]

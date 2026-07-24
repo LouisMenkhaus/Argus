@@ -1,3 +1,8 @@
 [flake8]
 max-line-length = 100
-extend-ignore = E203,W503
+exclude = .git,__pycache__,.venv,build,dist
+# Standard "black-compatible" exclusions: these flag continuation-line and
+# slicing style, which are formatter territory rather than defects. Real
+# problem detectors (F4xx unused/undefined names, E9xx syntax, E501 length,
+# W6xx deprecations) remain active.
+extend-ignore = E121,E123,E126,E127,E128,E131,E203,E226,E24,E704,W503,W504
