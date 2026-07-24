@@ -10,7 +10,9 @@ license = { file = "LICENSE" }
 line-length = 100
 
 [tool.mypy]
-python_version = "3.11"
+# 3.12: numpy's stubs use PEP 695 `type` statements, which mypy rejects
+# when targeting an older interpreter.
+python_version = "3.12"
 ignore_missing_imports = true
 warn_unused_ignores = true
 

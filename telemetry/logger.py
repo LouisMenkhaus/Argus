@@ -26,12 +26,12 @@ class SessionLogger:
         if self.csv_fp:
             events = "|".join(row.get("events", []))
             self.csv_fp.write(
-                f"{row.get('t_iso','')},{row.get('camera','')},"
-                f"{row.get('global_id','')},{row.get('local_id','')},"
-                f"{row.get('fps_avg',0):.2f},{row.get('infer_ms',0):.3f},"
-                f"{row.get('total_ms',0):.3f},"
-                f"{row.get('distance_est_m',0):.2f},{row.get('azimuth_deg',0):.2f},"
-                f"{row.get('heading_deg',0):.2f},{events}\n"
+                f"{row.get('t_iso', '')},{row.get('camera', '')},"
+                f"{row.get('global_id', '')},{row.get('local_id', '')},"
+                f"{row.get('fps_avg', 0):.2f},{row.get('infer_ms', 0):.3f},"
+                f"{row.get('total_ms', 0):.3f},"
+                f"{row.get('distance_est_m', 0):.2f},{row.get('azimuth_deg', 0):.2f},"
+                f"{row.get('heading_deg', 0):.2f},{events}\n"
             )
         if self.jsonl_fp:
             self.jsonl_fp.write(json.dumps(row) + "\n")

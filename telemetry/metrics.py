@@ -5,6 +5,7 @@ try:
 except Exception:
     METRICS_AVAILABLE = False
 
+
 class MetricsCollector:
     def __init__(self, port: int) -> None:
         if not METRICS_AVAILABLE:

@@ -49,6 +49,7 @@ class TokenBucket:
             return True
         return False
 
+
 class RateLimiter:
     def __init__(self, rate_per_sec: float = 5.0, burst: int = 10) -> None:
         self.rate = rate_per_sec
@@ -63,6 +64,7 @@ class RateLimiter:
                 bucket = TokenBucket(self.rate, self.burst)
                 self.buckets[key] = bucket
             return bucket.allow()
+
 
 class RBAC:
     def __init__(self, config_path: Path | None) -> None:
@@ -81,10 +83,12 @@ class RBAC:
         caps = self.roles.get(role, [])
         return "*" in caps or capability in caps
 
+
 @dataclass
 class ControlState:
     dashboard_status: dict[str, Any]
     toggles: dict[str, bool]
+
 
 def start_api(host: str, port: int, status_ref: ControlState, jwt_secret: str,
               rbac_path: str, rate_limit: float,
