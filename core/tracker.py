@@ -11,6 +11,7 @@ the detector. Names used elsewhere are re-exported below so existing imports
 (`from core.tracker import MotionSmoother`) keep working.
 """
 
+from collections import deque
 from typing import Any
 
 import cv2
@@ -22,7 +23,6 @@ import supervision as sv
 from core.config import AppConfig
 from core.smoothing import (  # noqa: F401  (re-exported for compatibility)
     COCO_CONNECTIONS,
-    AdaptiveProcessor,
     GlobalIDManager,
     MotionSmoother,
     TrackState,

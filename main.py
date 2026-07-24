@@ -280,11 +280,14 @@ def main() -> None:
             elif key in (ord('n'), ord('N')):
                 night_view = not night_view
             elif key == ord('1'):
-                show_pose = not show_pose; status_ref.toggles["pose"] = show_pose
+                show_pose = not show_pose
+                status_ref.toggles["pose"] = show_pose
             elif key == ord('2'):
-                show_boxes = not show_boxes; status_ref.toggles["boxes"] = show_boxes
+                show_boxes = not show_boxes
+                status_ref.toggles["boxes"] = show_boxes
             elif key == ord('3'):
-                show_ids = not show_ids; status_ref.toggles["ids"] = show_ids
+                show_ids = not show_ids
+                status_ref.toggles["ids"] = show_ids
             elif key in (ord('e'), ord('E')):
                 recorder.save_json("replay_manual_export.json")
                 audit.event("manual_replay_export")

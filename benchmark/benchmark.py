@@ -8,6 +8,7 @@ from camera.capture import CaptureWrapper
 from core.config import AppConfig
 from core.tracker import MultiCameraTracker
 
+
 def run_benchmark(cfg: AppConfig, session_dir: Path, num_frames: int = 1000) -> dict[str, float]:
     tracker = MultiCameraTracker(cfg)
     source = cfg.cameras.sources[0]
@@ -15,7 +16,8 @@ def run_benchmark(cfg: AppConfig, session_dir: Path, num_frames: int = 1000) -> 
                          cfg.cameras.fps, cfg.cameras.prefer_dshow)
     process = psutil.Process()
     start_mem = process.memory_info().rss / 1024 / 1024
-    times = []; infer_times = []
+    times = []
+    infer_times = []
     for _ in range(int(num_frames)):
         ret, frame = cap.read_latest(cfg.cameras.buffer_drops)
         if not ret or frame is None:

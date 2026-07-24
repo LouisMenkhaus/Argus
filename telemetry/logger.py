@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+
 class SessionLogger:
     def __init__(self, session_dir: Path, write_csv: bool = True, write_jsonl: bool = True) -> None:
         self.session_dir = session_dir
@@ -40,6 +41,8 @@ class SessionLogger:
 
     def close(self) -> None:
         if self.csv_fp:
-            self.csv_fp.flush(); self.csv_fp.close()
+            self.csv_fp.flush()
+            self.csv_fp.close()
         if self.jsonl_fp:
-            self.jsonl_fp.flush(); self.jsonl_fp.close()
+            self.jsonl_fp.flush()
+            self.jsonl_fp.close()

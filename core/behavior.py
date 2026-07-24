@@ -2,6 +2,7 @@ from __future__ import annotations
 import numpy as np
 from core.config import AppConfig
 
+
 class BehaviorAnalyzer:
     def __init__(self, cfg: AppConfig) -> None:
         self.cfg = cfg
@@ -10,8 +11,10 @@ class BehaviorAnalyzer:
     def analyze(self, global_id: int, box: np.ndarray, kp: np.ndarray) -> list[str]:
         events: list[str] = []
         x1, y1, x2, y2 = [float(v) for v in box]
-        w = max(1.0, x2 - x1); h = max(1.0, y2 - y1)
-        cx = (x1 + x2) * 0.5; cy = (y1 + y2) * 0.5
+        w = max(1.0, x2 - x1)
+        h = max(1.0, y2 - y1)
+        cx = (x1 + x2) * 0.5
+        cy = (y1 + y2) * 0.5
         prev = self.prev_centers.get(global_id)
         if prev is not None:
             speed = (((cx - prev[0]) / w) ** 2 + ((cy - prev[1]) / h) ** 2) ** 0.5

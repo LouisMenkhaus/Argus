@@ -44,7 +44,8 @@ def test_rbac_unknown_role_denied():
 
 
 def test_rbac_loads_custom_config(tmp_path=None):
-    import json, tempfile
+    import json
+    import tempfile
     from pathlib import Path
     with tempfile.TemporaryDirectory() as d:
         p = Path(d) / "rbac.json"

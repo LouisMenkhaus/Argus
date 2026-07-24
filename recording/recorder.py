@@ -5,6 +5,7 @@ import json
 import cv2
 import numpy as np
 
+
 class SessionRecorder:
     def __init__(self, session_dir: Path) -> None:
         self.session_dir = session_dir

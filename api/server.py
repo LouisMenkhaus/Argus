@@ -33,12 +33,16 @@ if API_AVAILABLE:
 class TokenBucket:
     def __init__(self, rate_per_sec: float, burst: int) -> None:
         import time
-        self.rate = float(rate_per_sec); self.burst = int(burst)
-        self.tokens = float(burst); self.last = time.time()
+        self.rate = float(rate_per_sec)
+        self.burst = int(burst)
+        self.tokens = float(burst)
+        self.last = time.time()
 
     def allow(self) -> bool:
         import time
-        now = time.time(); elapsed = now - self.last; self.last = now
+        now = time.time()
+        elapsed = now - self.last
+        self.last = now
         self.tokens = min(self.burst, self.tokens + elapsed * self.rate)
         if self.tokens >= 1.0:
             self.tokens -= 1.0
@@ -47,7 +51,8 @@ class TokenBucket:
 
 class RateLimiter:
     def __init__(self, rate_per_sec: float = 5.0, burst: int = 10) -> None:
-        self.rate = rate_per_sec; self.burst = burst
+        self.rate = rate_per_sec
+        self.burst = burst
         self.buckets: dict[str, TokenBucket] = {}
         self.lock = threading.Lock()
 

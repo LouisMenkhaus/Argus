@@ -3,6 +3,7 @@ from collections import deque
 import time
 import numpy as np
 
+
 class CameraHealth:
     """
     Hysteresis-based camera health to avoid flapping between healthy/degraded.
