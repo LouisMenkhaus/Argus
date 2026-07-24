@@ -88,8 +88,8 @@ class MultiCameraTracker:
             use_reid=cfg.tracking.reid,
             reid_threshold=float(cfg.tracking.reid_threshold),
         )
-        self.t_infer = deque(maxlen=120)
-        self.t_total = deque(maxlen=120)
+        self.t_infer: deque[float] = deque(maxlen=120)
+        self.t_total: deque[float] = deque(maxlen=120)
 
     def process(self, camera_idx: int, frame: np.ndarray) -> dict[str, Any]:
         t0 = cv2.getTickCount()

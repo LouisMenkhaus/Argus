@@ -291,7 +291,7 @@ class GlobalIDManager:
                     self.features[gid] = feat
             return gid
 
-        gid: Optional[int] = None
+        matched_gid: Optional[int] = None
         if self.reid_enabled and self.reid is not None:
             feat = self.reid.extract_features(frame, box)
             if feat is not None:
@@ -303,16 +303,16 @@ class GlobalIDManager:
                         best_score = score
                         best_gid = existing_gid
                 if best_gid is not None and best_score > self.reid_threshold:
-                    gid = int(best_gid)
-                    self.features[gid] = feat
+                    matched_gid = int(best_gid)
+                    self.features[matched_gid] = feat
 
-        if gid is None:
-            gid = self.next_gid
+        if matched_gid is None:
+            matched_gid = self.next_gid
             self.next_gid += 1
             if self.reid_enabled and self.reid is not None:
                 feat = self.reid.extract_features(frame, box)
                 if feat is not None:
-                    self.features[gid] = feat
+                    self.features[matched_gid] = feat
 
-        self.cam_local_to_global[key] = gid
-        return gid
+        self.cam_local_to_global[key] = matched_gid
+        return matched_gid

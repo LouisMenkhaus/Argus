@@ -83,15 +83,22 @@ class OneEuroFilter:
         # processed faster than real time, and stable after a stall.
         dt = min(MAX_DT_S, max(MIN_DT_S, dt))
 
+        # Local bindings: the None-check above guarantees these are set, but
+        # mypy cannot narrow Optional *instance attributes* across statements —
+        # locals it can.
+        x_prev = self._x_prev
+        dx_prev = self._dx_prev
+        assert x_prev is not None and dx_prev is not None
+
         # Smoothed derivative (speed estimate per coordinate)
-        dx = (x - self._x_prev) / dt
+        dx = (x - x_prev) / dt
         a_d = _smoothing_factor(dt, self.d_cutoff)
-        dx_hat = a_d * dx + (1.0 - a_d) * self._dx_prev
+        dx_hat = a_d * dx + (1.0 - a_d) * dx_prev
         self._dx_prev = dx_hat
 
         # Speed-adaptive cutoff, then smooth the signal itself
         cutoff = self.min_cutoff + self.beta * np.abs(dx_hat)
         a = _smoothing_factor(dt, cutoff)
-        x_hat = a * x + (1.0 - a) * self._x_prev
+        x_hat = a * x + (1.0 - a) * x_prev
         self._x_prev = x_hat
         return x_hat.copy()

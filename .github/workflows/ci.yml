@@ -41,7 +41,9 @@ jobs:
         run: python -m flake8 .
 
       - name: Security scan (bandit)
-        run: python -m bandit -c .bandit -r .
+        # All options inline: bandit's -c flag expects YAML, while a .bandit
+        # file is INI — mixing them crashes the parser before any scanning.
+        run: python -m bandit -r . -x ./tests --skip B101
 
       - name: Tests
         run: python -m pytest -q --cov=core --cov=camera --cov=telemetry --cov-report=term-missing
