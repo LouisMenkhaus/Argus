@@ -1,0 +1,74 @@
+model:
+  path: "yolo11n-pose.pt"
+  conf: 0.50
+  iou: 0.50
+  max_det: 10
+
+cameras:
+  sources: ["0"]
+  width: 1280
+  height: 720
+  fps: 60
+  prefer_dshow: true
+  threaded_capture: true
+  buffer_drops: 2
+  reconnect_attempts: 120
+
+behaviors:
+  fast_motion_threshold: 0.9
+  fall_aspect_ratio: 1.2
+  raised_hands_margin_px: 20
+
+spatial:
+  person_height_m: 1.72
+  fov_deg: 69.0
+  vert_fov_deg: 38.8
+  distance_alpha: 0.75
+  keypoint_conf_threshold: 0.20
+
+tracking:
+  filter: "kalman"              # box filter: kalman | adaptive
+  keypoint_filter: "one_euro"   # keypoint smoothing: one_euro (low latency) | ema
+  one_euro_min_cutoff: 1.0
+  one_euro_beta: 0.05
+  alpha_fast: 0.45
+  alpha_slow: 0.88
+  motion_thresh: 0.025
+  history_len: 600
+  reid: true
+  reid_threshold: 0.65
+
+telemetry:
+  out_dir: "sessions"
+  write_csv: true
+  write_jsonl: true
+  dashboard: false
+  dashboard_port: 8000
+  metrics: false
+  metrics_port: 9090
+
+security:
+  api: false
+  jwt_secret_env: "JWT_SECRET"
+  rbac_config: "rbac.json"
+  rate_limit: 5.0
+  rate_burst: 10
+
+alerts:
+  webhook_url: ""
+
+playback:
+  enabled: true
+  autosave_replay_json: true
+
+processor:
+  auto_fallback: true
+  fallback_model: "yolo11n-pose.pt"
+  slow_infer_threshold_ms: 50.0
+
+health:
+  bad_checks_required: 3
+  good_checks_required: 5
+  degraded_mean_interval_s: 0.12
+  dropping_frame_gap_s: 0.50
+  cooldown_sec: 2.0

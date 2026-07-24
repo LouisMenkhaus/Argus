@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+sessions/
+tracker_v6_sessions/
+audit_global.log
+*.mp4
+*.pt
+.env
+rbac.json
+.coverage
+htmlcov/
+.mypy_cache/
+.pytest_cache/

@@ -1,0 +1,6 @@
+FROM python:3.11-slim
+WORKDIR /app
+COPY requirements.txt requirements-api.txt requirements-metrics.txt /app/
+RUN pip install --no-cache-dir -r requirements.txt -r requirements-api.txt -r requirements-metrics.txt
+COPY . /app
+CMD ["python", "main.py", "--sources", "0"]

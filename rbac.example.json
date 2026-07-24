@@ -1,0 +1,7 @@
+{
+  "roles": {
+    "viewer":   ["status", "health"],
+    "operator": ["status", "health", "toggle"],
+    "admin":    ["*"]
+  }
+}
