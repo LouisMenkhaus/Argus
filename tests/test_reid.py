@@ -33,3 +33,25 @@ def test_zero_vector_similarity_is_zero():
     a = np.zeros(10, dtype=np.float32)
     b = np.ones(10, dtype=np.float32)
     assert SimpleReID.cosine_similarity(a, b) == 0.0
+
+
+def test_degrades_gracefully_without_hog(monkeypatch):
+    """Slim/headless OpenCV builds omit objdetect (no HOGDescriptor). ReID must
+    fall back to histogram-only features rather than crash — a weaker matcher
+    beats a dead pipeline on constrained deploy targets."""
+    import cv2 as _cv2
+
+    monkeypatch.delattr(_cv2, "HOGDescriptor", raising=False)
+    reid = SimpleReID()
+    assert reid.hog_enabled is False
+
+    frame = np.zeros((240, 320, 3), dtype=np.uint8)
+    frame[40:200, 60:160] = (30, 90, 200)
+    feat = reid.extract_features(frame, np.array([60, 40, 160, 200]))
+    assert feat is not None and feat.ndim == 1
+
+    same = reid.extract_features(frame, np.array([62, 42, 158, 198]))
+    other_frame = np.zeros((240, 320, 3), dtype=np.uint8)
+    other_frame[40:200, 60:160] = (200, 200, 30)
+    diff = reid.extract_features(other_frame, np.array([60, 40, 160, 200]))
+    assert reid.cosine_similarity(feat, same) > reid.cosine_similarity(feat, diff)
